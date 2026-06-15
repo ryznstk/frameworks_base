@@ -89,6 +89,7 @@ import com.android.settingslib.media.MediaOutputConstants
 
 import com.android.systemui.ActivityIntentHelper
 import com.android.systemui.Dependency
+import com.android.systemui.compose.theme.LocalAndroidColorScheme
 import com.android.systemui.media.dialog.MediaOutputDialogReceiver
 import com.android.systemui.plugins.ActivityStarter
 import com.android.systemui.qs.panels.ui.compose.infinitegrid.CustomColorScheme
@@ -173,6 +174,7 @@ private fun EqualizerBars(
 private fun SkipButton(
     icon: @Composable () -> Unit,
     enabled: Boolean,
+    showBg: Boolean,
     onClick: () -> Unit,
 ) {
     val source = remember { MutableInteractionSource() }
@@ -188,8 +190,7 @@ private fun SkipButton(
             .graphicsLayer { scaleX = scale; scaleY = scale }
             .clip(CircleShape)
             .background(
-                if (enabled) MaterialTheme.colorScheme.surfaceContainerHighest.copy(alpha = 0.6f)
-                else Color.Transparent
+                if (showBg) LocalAndroidColorScheme.current.surfaceEffect2 else Color.Transparent
             )
             .clickable(source, indication = null, enabled = enabled, onClick = onClick),
         contentAlignment = Alignment.Center,
@@ -212,6 +213,7 @@ private fun MaterialMusicPlayerContent(
 ) {
     val context = LocalContext.current
     val tileColor = CustomColorScheme.current.qsTileColor
+    val surfaceEffect2 = LocalAndroidColorScheme.current.surfaceEffect2
 
     // Audio output device detection
     val audioManager = remember { context.getSystemService(Context.AUDIO_SERVICE) as AudioManager }
@@ -431,6 +433,7 @@ private fun MaterialMusicPlayerContent(
                         )
                     },
                     enabled = hasController,
+                    showBg = !hasAlbumArt,
                     onClick = { mediaState.controller?.transportControls?.skipToPrevious() },
                 )
 
@@ -441,8 +444,8 @@ private fun MaterialMusicPlayerContent(
                         .clip(CircleShape)
                         .background(
                             if (hasAlbumArt) {
-                                if (localIsPlaying) Color.White else Color.White.copy(alpha = 0.3f)
-                            } else accentColor
+                                accentColor
+                            } else surfaceEffect2
                         )
                         .clickable(playSrc, indication = null) {
                             val ctrl = mediaState.controller ?: return@clickable
@@ -488,6 +491,7 @@ private fun MaterialMusicPlayerContent(
                         )
                     },
                     enabled = hasController,
+                    showBg = !hasAlbumArt,
                     onClick = { mediaState.controller?.transportControls?.skipToNext() },
                 )
             }

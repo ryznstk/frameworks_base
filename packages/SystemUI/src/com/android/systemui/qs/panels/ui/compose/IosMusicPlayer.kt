@@ -88,6 +88,7 @@ import kotlinx.coroutines.launch
 import com.android.settingslib.media.MediaOutputConstants
 
 import com.android.systemui.ActivityIntentHelper
+import com.android.systemui.compose.theme.LocalAndroidColorScheme
 import com.android.systemui.Dependency
 import com.android.systemui.media.dialog.MediaOutputDialogReceiver
 import com.android.systemui.plugins.ActivityStarter
@@ -132,6 +133,7 @@ private fun IosMusicPlayerContent(
     val context = LocalContext.current
     val scope = rememberCoroutineScope()
 
+    val surfaceEffect2 = LocalAndroidColorScheme.current.surfaceEffect2
     val hasMedia = mediaState.controller != null
     val hasAlbumArt = mediaState.albumArt != null
 
@@ -140,6 +142,13 @@ private fun IosMusicPlayerContent(
     val onPrimaryColor = MaterialTheme.colorScheme.onPrimary
     val onSurface = MaterialTheme.colorScheme.onSurface
     val onVariant = MaterialTheme.colorScheme.onSurfaceVariant
+
+    val accentColor by animateColorAsState(
+        targetValue = if (hasAlbumArt) MaterialTheme.colorScheme.primaryContainer
+                      else MaterialTheme.colorScheme.surfaceContainerHighest,
+        animationSpec = tween(400),
+        label = "accent",
+    )
 
     // Audio output device detection
     val audioManager = remember { context.getSystemService(Context.AUDIO_SERVICE) as AudioManager }
@@ -398,10 +407,7 @@ private fun IosMusicPlayerContent(
                     modifier = Modifier
                         .size(46.dp)
                         .clip(CircleShape)
-                        .background(
-                            if (hasMedia) Color.White.copy(alpha = 0.3f)
-                            else MaterialTheme.colorScheme.surfaceContainerHighest.copy(alpha = 0.6f)
-                        ),
+                        .background(if (hasAlbumArt) accentColor else surfaceEffect2),
                     contentAlignment = Alignment.Center,
                 ) {
                     IconButton(
